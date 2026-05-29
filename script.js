@@ -36,3 +36,12 @@ const gameBoard = (function () {
     updateBoard,
   };
 })();
+
+function createPlayer(name, marker) {
+  const getName = () => name;
+  const getMarker = () => marker;
+  return { getName, getMarker };
+}
+
+const player1 = createPlayer("Player 1", "X");
+const player2 = createPlayer("Player 2", "O");
