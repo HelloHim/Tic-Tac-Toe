@@ -51,6 +51,10 @@ const gameController = (function (gameBoard) {
     gameVictor: undefined,
   };
 
+  const playTurn = (chosenCell) => {
+    gameBoard.updateBoard(chosenCell, currentTurn);
+  };
+
   const getCurrentTurn = () => currentTurn;
 
   const switchPlayerTurn = () => {
@@ -95,7 +99,6 @@ const gameController = (function (gameBoard) {
       gameOutcome.gameStatus = "Draw";
     } else {
       console.log("ONGOING MATCH");
-      console.log(mainDiagonal);
     }
   };
 
@@ -106,6 +109,7 @@ const gameController = (function (gameBoard) {
     switchPlayerTurn,
     setGameOutcome,
     getGameOutcome,
+    playTurn,
   };
 })(gameBoard);
 
@@ -129,9 +133,23 @@ const displayController = (function (gameBoard, gameController) {
   }
 })(gameBoard, gameController);
 
-displayController.displayBoardArray();
+const playGame = (function (gameController, gameBoard, displayController) {
+  createPlayer("Player1", "X");
+  createPlayer("Player2", "O");
 
-// const playGame = (function () )
-
-// createPlayer("Player1", "X");
-// createPlayer("Player2", "O");
+  while (gameController.getGameOutcome().gameStatus === "Ongoing") {
+    displayController.displayBoardArray();
+    displayController.displayCurrentTurn();
+    let userCellChoice = prompt("Choose your square!")
+      .split(",")
+      .map((num) => num.trim());
+    gameController.playTurn(userCellChoice);
+    gameController.setGameOutcome();
+    if (gameController.getGameOutcome().gameStatus !== "Ongoing") {
+      displayController.displayBoardArray();
+      displayController.displayGameOutcome();
+      break;
+    }
+    gameController.switchPlayerTurn();
+  }
+})(gameController, gameBoard, displayController);
