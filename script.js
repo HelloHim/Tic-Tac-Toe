@@ -5,11 +5,11 @@ const gameBoard = (function () {
     ["□", "□", "□"],
   ];
 
-  getBoardArray = function () {
+  const getBoardArray = function () {
     return boardArray;
   };
 
-  getBoardContents = function () {
+  const getBoardContents = function () {
     return boardArray.flatMap((row, rowIndex) => {
       return row.map((element, columnIndex) => {
         return {
@@ -21,11 +21,11 @@ const gameBoard = (function () {
     });
   };
 
-  getRemainingCells = function () {
+  const getRemainingCells = function () {
     return boardArray.flat().filter((item) => item === "□").length;
   };
 
-  updateBoard = function (newboardArray) {
+  const updateBoard = function (newboardArray) {
     boardArray = newboardArray;
   };
 
@@ -44,20 +44,20 @@ function createPlayer(name, marker) {
 }
 
 const gameController = (function (gameBoard) {
-  let boardArray = getBoardArray();
+  let boardArray = gameBoard.getBoardArray();
   let currentTurn = Math.random() >= 0.5 ? "X" : "O";
   let gameOutcome = {
     gameStatus: "Ongoing",
     gameVictor: undefined,
   };
 
-  getCurrentTurn = () => currentTurn;
+  const getCurrentTurn = () => currentTurn;
 
-  switchPlayerTurn = () => {
+  const switchPlayerTurn = () => {
     currentTurn = currentTurn === "X" ? "O" : "X";
   };
 
-  setGameOutcome = () => {
+  const setGameOutcome = () => {
     // some() - does any row have all X/O's?
     // every() - is this one row all X/O's?
     const rowWin = boardArray.some((row) => {
@@ -90,7 +90,7 @@ const gameController = (function (gameBoard) {
       console.log(`${currentTurn} WON`);
       gameOutcome.gameStatus = "Victor";
       gameOutcome.gameVictor = getCurrentTurn();
-    } else if (getRemainingCells() == 0) {
+    } else if (gameBoard.getRemainingCells() == 0) {
       console.log("DRAW");
       gameOutcome.gameStatus = "Draw";
     } else {
@@ -99,7 +99,7 @@ const gameController = (function (gameBoard) {
     }
   };
 
-  getGameOutcome = () => gameOutcome;
+  const getGameOutcome = () => gameOutcome;
 
   return {
     getCurrentTurn,
@@ -109,4 +109,29 @@ const gameController = (function (gameBoard) {
   };
 })(gameBoard);
 
-gameController.setGameOutcome();
+const displayController = (function (gameBoard, gameController) {
+  const displayBoardArray = () => {
+    console.table(gameBoard.getBoardArray());
+  };
+
+  const displayCurrentTurn = () => {
+    console.log(`Current Turn - ${gameController.getCurrentTurn()}`);
+  };
+
+  const displayGameOutcome = () => {
+    console.log(gameController.getGameOutcome());
+  }
+
+  return {
+    displayBoardArray,
+    displayCurrentTurn,
+    displayGameOutcome,
+  }
+})(gameBoard, gameController);
+
+displayController.displayBoardArray();
+
+// const playGame = (function () )
+
+// createPlayer("Player1", "X");
+// createPlayer("Player2", "O");
