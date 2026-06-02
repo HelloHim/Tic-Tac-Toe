@@ -25,8 +25,9 @@ const gameBoard = (function () {
     return boardArray.flat().filter((item) => item === "□").length;
   };
 
-  const updateBoard = function (newboardArray) {
-    boardArray = newboardArray;
+  const updateBoard = function (cell, currentPlayer) {
+    // Flip Y axis so 0,0 is bottom-left instead (array row 0 is top, so we invert)
+    boardArray[2 - cell[1]][cell[0]] = currentPlayer;
   };
 
   return {
@@ -115,22 +116,28 @@ const gameController = (function (gameBoard) {
 
 const displayController = (function (gameBoard, gameController) {
   const displayBoardArray = () => {
-    console.table(gameBoard.getBoardArray());
+    // Copy and reverse the array so row 0 appears at the bottom (matching user coordinates)
+    const rows = [...gameBoard.getBoardArray()].reverse();
+    // Loop through each row top to bottom
+    for (const row of rows) {
+      // Print each cell in the row separated by a space e.g. "□ □ □"
+      console.log(row.join(" "));
+    }
   };
 
   const displayCurrentTurn = () => {
-    console.log(`Current Turn - ${gameController.getCurrentTurn()}`);
+    console.log(`Current Turn - Player ${gameController.getCurrentTurn()}`);
   };
 
   const displayGameOutcome = () => {
     console.log(gameController.getGameOutcome());
-  }
+  };
 
   return {
     displayBoardArray,
     displayCurrentTurn,
     displayGameOutcome,
-  }
+  };
 })(gameBoard, gameController);
 
 const playGame = (function (gameController, gameBoard, displayController) {
