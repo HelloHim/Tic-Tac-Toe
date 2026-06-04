@@ -131,11 +131,11 @@ const gameController = (function (gameBoard) {
   };
 })(gameBoard);
 
+createPlayer("Player1", "X");
+createPlayer("Player2", "O");
+
 // Handles everything the player sees and interacts with in the DOM
 const displayController = (function (gameBoard, gameController) {
-  createPlayer("Player1", "X");
-  createPlayer("Player2", "O");
-
   // Grab all 9 cells, the turn subheading, and the outcome subheading from the DOM
   const cells = document.querySelectorAll(".cell");
   const statusEl = document.querySelector("#status");
