@@ -132,7 +132,8 @@ const displayController = (function (gameBoard, gameController) {
     cells.forEach((cell, index) => {
       const r = Math.floor(index / 3); // visual row (0 = top)
       const c = index % 3;             // visual column (0 = left)
-      cell.textContent = gameBoard.getBoardArray()[2 - r][c];
+      const value = gameBoard.getBoardArray()[2 - r][c];
+      cell.textContent = value === "□" ? "" : value;
     });
   };
 
