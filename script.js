@@ -157,14 +157,18 @@ const displayController = (function (gameBoard, gameController) {
   // Update the single subheading: only the text changes, the element never moves
   const updateStatus = () => {
     const outcome = gameController.getGameOutcome();
+    const marker = gameController.getCurrentTurn();
     // Add game-over class to the board so CSS can tint the cells
     document.querySelector("#board").classList.toggle("game-over", outcome.gameStatus !== "Ongoing");
+    // Match the subheading colour to the relevant player's marker colour
+    statusEl.classList.toggle("cell-x", marker === "X" && outcome.gameStatus !== "Draw");
+    statusEl.classList.toggle("cell-o", marker === "O" && outcome.gameStatus !== "Draw");
     if (outcome.gameStatus === "Victor") {
       statusEl.textContent = `PLAYER ${outcome.gameVictor} WINS!`;
     } else if (outcome.gameStatus === "Draw") {
       statusEl.textContent = "IT'S A TIE!";
     } else {
-      statusEl.textContent = `Player ${gameController.getCurrentTurn()}'s turn`;
+      statusEl.textContent = `PLAYER ${marker}'s TURN!`;
     }
   };
 

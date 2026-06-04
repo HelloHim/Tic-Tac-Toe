@@ -35,7 +35,6 @@ h1 {
   line-height: 1.8em;
   font-size: clamp(0.9rem, 2vw, 1.2rem);
   font-weight: 700;                       /* always bold */
-  text-transform: uppercase;              /* always caps */
   color: #ffc56a;
   overflow: hidden;                       /* prevents any overflow shifting layout */
   margin-bottom: 1.2rem;                  /* breathing room before the grid */
@@ -80,6 +79,10 @@ h1 {
 .cell-o {
   color: #74c0fc;
 }
+
+/* Subheading inherits the active marker colour (needs higher specificity than #status) */
+#status.cell-x { color: #ff6b6b; }
+#status.cell-o { color: #74c0fc; }
 
 /* Remove the right border on the last column */
 .cell:nth-child(3n) {
