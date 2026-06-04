@@ -147,9 +147,12 @@ const playGame = (function (gameController, gameBoard, displayController) {
   while (gameController.getGameOutcome().gameStatus === "Ongoing") {
     displayController.displayBoardArray();
     displayController.displayCurrentTurn();
-    let userCellChoice = prompt("Choose your square!")
-      .split(",")
-      .map((num) => num.trim());
+    let userCellChoice;
+    do {
+      userCellChoice = prompt("Choose your square!")
+        .split(",")
+        .map((num) => num.trim());
+    } while (gameBoard.getBoardArray()[2 - userCellChoice[1]][userCellChoice[0]] !== "□");
     gameController.playTurn(userCellChoice);
     gameController.setGameOutcome();
     if (gameController.getGameOutcome().gameStatus !== "Ongoing") {
