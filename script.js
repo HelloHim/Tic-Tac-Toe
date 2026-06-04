@@ -56,11 +56,14 @@ function createPlayer(name, marker) {
   return { getName, getMarker };
 }
 
+const player1 = createPlayer("Player1", "X");
+const player2 = createPlayer("Player2", "O");
+
 // Controls the flow of the game: turns, win checking, outcome
-const gameController = (function (gameBoard) {
+const gameController = (function (gameBoard, player1, player2) {
   let boardArray = gameBoard.getBoardArray();
   // Randomly decide who goes first
-  let currentTurn = Math.random() >= 0.5 ? "X" : "O";
+  let currentPlayer = Math.random() >= 0.5 ? player1 : player2;
   let gameOutcome = {
     gameStatus: "Ongoing",
     gameVictor: undefined,
@@ -68,14 +71,15 @@ const gameController = (function (gameBoard) {
 
   // Places the current player's marker on the board
   const playTurn = (chosenCell) => {
-    gameBoard.updateBoard(chosenCell, currentTurn);
+    gameBoard.updateBoard(chosenCell, currentPlayer.getMarker());
   };
 
-  const getCurrentTurn = () => currentTurn;
+  // Returns the current player's marker string
+  const getCurrentTurn = () => currentPlayer.getMarker();
 
-  // Swaps the active player between X and O
+  // Swaps to the other player
   const switchPlayerTurn = () => {
-    currentTurn = currentTurn === "X" ? "O" : "X";
+    currentPlayer = currentPlayer === player1 ? player2 : player1;
   };
 
   // Checks for a win or draw and updates gameOutcome
@@ -117,7 +121,7 @@ const gameController = (function (gameBoard) {
   // Resets the board, turn, and outcome so a new game can start
   const resetGame = () => {
     gameBoard.resetBoard();
-    currentTurn = Math.random() >= 0.5 ? "X" : "O";
+    currentPlayer = Math.random() >= 0.5 ? player1 : player2;
     gameOutcome = { gameStatus: "Ongoing", gameVictor: undefined };
   };
 
@@ -129,10 +133,7 @@ const gameController = (function (gameBoard) {
     playTurn,
     resetGame,
   };
-})(gameBoard);
-
-createPlayer("Player1", "X");
-createPlayer("Player2", "O");
+})(gameBoard, player1, player2);
 
 // Handles everything the player sees and interacts with in the DOM
 const displayController = (function (gameBoard, gameController) {
