@@ -1,3 +1,4 @@
+// Stores and manages the 3x3 board data
 const gameBoard = (function () {
   let boardArray = [
     ["□", "□", "□"],
@@ -5,10 +6,12 @@ const gameBoard = (function () {
     ["□", "□", "□"],
   ];
 
+  // Returns the raw 2D array
   const getBoardArray = function () {
     return boardArray;
   };
 
+  // Returns all cells as objects with their content and coordinates
   const getBoardContents = function () {
     return boardArray.flatMap((row, rowIndex) => {
       return row.map((element, columnIndex) => {
@@ -21,12 +24,14 @@ const gameBoard = (function () {
     });
   };
 
+  // Counts how many cells are still empty (□)
   const getRemainingCells = function () {
     return boardArray.flat().filter((item) => item === "□").length;
   };
 
+  // Places the current player's marker on the chosen cell
+  // Flip Y axis so 0,0 is bottom-left instead (array row 0 is top, so we invert)
   const updateBoard = function (cell, currentPlayer) {
-    // Flip Y axis so 0,0 is bottom-left instead (array row 0 is top, so we invert)
     boardArray[2 - cell[1]][cell[0]] = currentPlayer;
   };
 
@@ -38,68 +43,66 @@ const gameBoard = (function () {
   };
 })();
 
+// Creates a player with a name and marker (X or O)
 function createPlayer(name, marker) {
   const getName = () => name;
   const getMarker = () => marker;
   return { getName, getMarker };
 }
 
+// Controls the flow of the game: turns, win checking, outcome
 const gameController = (function (gameBoard) {
   let boardArray = gameBoard.getBoardArray();
+  // Randomly decide who goes first
   let currentTurn = Math.random() >= 0.5 ? "X" : "O";
   let gameOutcome = {
     gameStatus: "Ongoing",
     gameVictor: undefined,
   };
 
+  // Places the current player's marker on the board
   const playTurn = (chosenCell) => {
     gameBoard.updateBoard(chosenCell, currentTurn);
   };
 
   const getCurrentTurn = () => currentTurn;
 
+  // Swaps the active player between X and O
   const switchPlayerTurn = () => {
     currentTurn = currentTurn === "X" ? "O" : "X";
   };
 
+  // Checks for a win or draw and updates gameOutcome
   const setGameOutcome = () => {
-    // some() - does any row have all X/O's?
-    // every() - is this one row all X/O's?
+    // Check if any row is all X or all O
     const rowWin = boardArray.some((row) => {
       return row.every((cell) => cell === "X") || row.every((cell) => cell === "O");
     });
 
-    // check if any column is all X's or all O's
-    const colWin = boardArray[0] // use the first row just to know how many columns exist
+    // Check if any column is all X or all O
+    const colWin = boardArray[0]
       .map(
-        (_, colIndex) => boardArray.map((row) => row[colIndex]), // grab this column from every row
+        (_, colIndex) => boardArray.map((row) => row[colIndex]),
       )
       .some(
-        (
-          col, // check if any column passes the test
-        ) => col.every((cell) => cell === "X") || col.every((cell) => cell === "O"),
+        (col) => col.every((cell) => cell === "X") || col.every((cell) => cell === "O"),
       );
 
-    let diagonalWin;
-
+    // Grab the main diagonal (top-left to bottom-right) and check it
     const mainDiagonal = boardArray.map((row, rowIndex) => {
       return row.filter((cell, columnIndex) => {
         return columnIndex === rowIndex;
       });
     });
 
-    diagonalWin =
+    const diagonalWin =
       mainDiagonal.flat().every((cell) => cell === "X") || mainDiagonal.flat().every((cell) => cell === "O");
 
     if (rowWin || colWin || diagonalWin) {
-      console.log(`${currentTurn} WON`);
       gameOutcome.gameStatus = "Victor";
       gameOutcome.gameVictor = getCurrentTurn();
     } else if (gameBoard.getRemainingCells() == 0) {
-      console.log("DRAW");
       gameOutcome.gameStatus = "Draw";
-    } else {
-      console.log("ONGOING MATCH");
     }
   };
 
@@ -114,52 +117,67 @@ const gameController = (function (gameBoard) {
   };
 })(gameBoard);
 
+// Handles everything the player sees and interacts with in the DOM
 const displayController = (function (gameBoard, gameController) {
-  const displayBoardArray = () => {
-    // Copy and reverse the array so row 0 appears at the bottom (matching user coordinates)
-    const rows = [...gameBoard.getBoardArray()].reverse();
-    // Loop through each row top to bottom
-    for (const row of rows) {
-      // Print each cell in the row separated by a space e.g. "□ □ □"
-      console.log(row.join(" "));
-    }
-  };
-
-  const displayCurrentTurn = () => {
-    console.log(`Current Turn - Player ${gameController.getCurrentTurn()}`);
-  };
-
-  const displayGameOutcome = () => {
-    console.log(gameController.getGameOutcome());
-  };
-
-  return {
-    displayBoardArray,
-    displayCurrentTurn,
-    displayGameOutcome,
-  };
-})(gameBoard, gameController);
-
-const playGame = (function (gameController, gameBoard, displayController) {
   createPlayer("Player1", "X");
   createPlayer("Player2", "O");
 
-  while (gameController.getGameOutcome().gameStatus === "Ongoing") {
-    displayController.displayBoardArray();
-    displayController.displayCurrentTurn();
-    let userCellChoice;
-    do {
-      userCellChoice = prompt("Choose your square!")
-        .split(",")
-        .map((num) => num.trim());
-    } while (gameBoard.getBoardArray()[2 - userCellChoice[1]][userCellChoice[0]] !== "□");
-    gameController.playTurn(userCellChoice);
-    gameController.setGameOutcome();
-    if (gameController.getGameOutcome().gameStatus !== "Ongoing") {
-      displayController.displayBoardArray();
-      displayController.displayGameOutcome();
-      break;
+  // Grab all 9 cells, the turn subheading, and the outcome subheading from the DOM
+  const cells = document.querySelectorAll(".cell");
+  const statusEl = document.querySelector("#status");
+  const outcomeEl = document.querySelector("#outcome");
+
+  // Map each DOM cell (index 0–8) to its value in boardArray and display it
+  const renderBoard = () => {
+    cells.forEach((cell, index) => {
+      const r = Math.floor(index / 3); // visual row (0 = top)
+      const c = index % 3;             // visual column (0 = left)
+      cell.textContent = gameBoard.getBoardArray()[2 - r][c];
+    });
+  };
+
+  // Update the turn subheading and outcome subheading based on game state
+  const updateStatus = () => {
+    const outcome = gameController.getGameOutcome();
+    if (outcome.gameStatus === "Victor") {
+      statusEl.textContent = "";
+      outcomeEl.textContent = `PLAYER ${outcome.gameVictor} WINS!`;
+    } else if (outcome.gameStatus === "Draw") {
+      statusEl.textContent = "";
+      outcomeEl.textContent = "IT'S A TIE!";
+    } else {
+      statusEl.textContent = `Player ${gameController.getCurrentTurn()}'s turn`;
+      outcomeEl.textContent = "";
     }
-    gameController.switchPlayerTurn();
-  }
-})(gameController, gameBoard, displayController);
+  };
+
+  // Runs when a cell is clicked
+  const handleClick = (index) => {
+    const c = index % 3;
+    const r = Math.floor(index / 3);
+
+    // Do nothing if the cell is already taken or the game has ended
+    if (gameBoard.getBoardArray()[2 - r][c] !== "□") return;
+    if (gameController.getGameOutcome().gameStatus !== "Ongoing") return;
+
+    gameController.playTurn([c, r]);
+    gameController.setGameOutcome();
+    renderBoard();
+
+    // Only switch turns if the game is still going
+    if (gameController.getGameOutcome().gameStatus === "Ongoing") {
+      gameController.switchPlayerTurn();
+    }
+
+    updateStatus();
+  };
+
+  // Wire up a click listener on each cell
+  cells.forEach((cell, index) => {
+    cell.addEventListener("click", () => handleClick(index));
+  });
+
+  // Draw the empty board and set the initial turn message on page load
+  renderBoard();
+  updateStatus();
+})(gameBoard, gameController);
