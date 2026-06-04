@@ -24,6 +24,11 @@ const gameBoard = (function () {
     });
   };
 
+  // Clears every cell back to empty
+  const resetBoard = function () {
+    boardArray.forEach((row) => row.fill("□"));
+  };
+
   // Counts how many cells are still empty (□)
   const getRemainingCells = function () {
     return boardArray.flat().filter((item) => item === "□").length;
@@ -40,6 +45,7 @@ const gameBoard = (function () {
     getBoardContents,
     getRemainingCells,
     updateBoard,
+    resetBoard,
   };
 })();
 
@@ -108,12 +114,20 @@ const gameController = (function (gameBoard) {
 
   const getGameOutcome = () => gameOutcome;
 
+  // Resets the board, turn, and outcome so a new game can start
+  const resetGame = () => {
+    gameBoard.resetBoard();
+    currentTurn = Math.random() >= 0.5 ? "X" : "O";
+    gameOutcome = { gameStatus: "Ongoing", gameVictor: undefined };
+  };
+
   return {
     getCurrentTurn,
     switchPlayerTurn,
     setGameOutcome,
     getGameOutcome,
     playTurn,
+    resetGame,
   };
 })(gameBoard);
 
@@ -176,6 +190,13 @@ const displayController = (function (gameBoard, gameController) {
   // Wire up a click listener on each cell
   cells.forEach((cell, index) => {
     cell.addEventListener("click", () => handleClick(index));
+  });
+
+  // Reset the game and refresh the board and status when Reset is clicked
+  document.querySelector("#reset").addEventListener("click", () => {
+    gameController.resetGame();
+    renderBoard();
+    updateStatus();
   });
 
   // Draw the empty board and set the initial turn message on page load
