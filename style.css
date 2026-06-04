@@ -1,12 +1,117 @@
+/* Reset default browser spacing and sizing */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark background, orange text, consistent font */
+body {
+  background: #0a1628;
+  color: #ff9400;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+/* Centre everything vertically and horizontally, stack in a column */
+#container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Main title */
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: 0.12em;
+  margin-bottom: 0.6rem; /* half the normal spacing, pulls subheading closer */
+}
+
+/* Single subheading: fixed height so it never moves, only the text changes */
+#status {
+  height: 1.8em;
+  line-height: 1.8em;
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  font-weight: 700;                       /* always bold */
+  text-transform: uppercase;              /* always caps */
+  color: #ffc56a;
+  overflow: hidden;                       /* prevents any overflow shifting layout */
+  margin-bottom: 1.2rem;                  /* breathing room before the grid */
+}
+
+/* 3x3 grid with explicit row and column sizing so cells never resize */
 #board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  width: fit-content;
+  grid-template-rows: repeat(3, 1fr);    /* explicit rows fix cell height shifting */
+  width: min(70vw, 70vh, 480px);
+  height: min(70vw, 70vh, 480px);
+  border: 3px solid #ff9400;
+  margin-bottom: 1.2rem;
 }
 
+/* Individual cells */
 .cell {
-  width: 80px;
-  height: 80px;
-  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 500;
+  background: #111e33;
+  border-right: 1px solid rgba(255, 148, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 148, 0, 0.3);
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+/* Subtle hover tint */
+.cell:hover {
+  background: #162338;
+}
+
+/* X marker: coral red */
+.cell-x {
+  color: #ff6b6b;
+}
+
+/* O marker: sky blue */
+.cell-o {
+  color: #74c0fc;
+}
+
+/* Remove the right border on the last column */
+.cell:nth-child(3n) {
+  border-right: none;
+}
+
+/* Remove the bottom border on the last row */
+.cell:nth-child(n+7) {
+  border-bottom: none;
+}
+
+/* Tint all cells slightly when the game ends */
+#board.game-over .cell {
+  background: #1e1508;
+  cursor: default;
+}
+
+/* Outline-style reset button: fills with orange on hover */
+#reset {
+  border: 2px solid #ff9400;
+  border-radius: 6px;
+  background: transparent;
+  color: #ff9400;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#reset:hover {
+  background: #ff9400;
+  color: #0a1628;
 }

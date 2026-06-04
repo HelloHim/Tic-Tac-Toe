@@ -137,10 +137,9 @@ const gameController = (function (gameBoard, player1, player2) {
 
 // Handles everything the player sees and interacts with in the DOM
 const displayController = (function (gameBoard, gameController) {
-  // Grab all 9 cells, the turn subheading, and the outcome subheading from the DOM
+  // Grab all 9 cells and the single subheading element from the DOM
   const cells = document.querySelectorAll(".cell");
   const statusEl = document.querySelector("#status");
-  const outcomeEl = document.querySelector("#outcome");
 
   // Map each DOM cell (index 0–8) to its value in boardArray and display it
   const renderBoard = () => {
@@ -149,21 +148,23 @@ const displayController = (function (gameBoard, gameController) {
       const c = index % 3;             // visual column (0 = left)
       const value = gameBoard.getBoardArray()[2 - r][c];
       cell.textContent = value === "□" ? "" : value;
+      // Add a marker class so CSS can colour X and O differently
+      cell.classList.toggle("cell-x", value === "X");
+      cell.classList.toggle("cell-o", value === "O");
     });
   };
 
-  // Update the turn subheading and outcome subheading based on game state
+  // Update the single subheading: only the text changes, the element never moves
   const updateStatus = () => {
     const outcome = gameController.getGameOutcome();
+    // Add game-over class to the board so CSS can tint the cells
+    document.querySelector("#board").classList.toggle("game-over", outcome.gameStatus !== "Ongoing");
     if (outcome.gameStatus === "Victor") {
-      statusEl.textContent = "";
-      outcomeEl.textContent = `PLAYER ${outcome.gameVictor} WINS!`;
+      statusEl.textContent = `PLAYER ${outcome.gameVictor} WINS!`;
     } else if (outcome.gameStatus === "Draw") {
-      statusEl.textContent = "";
-      outcomeEl.textContent = "IT'S A TIE!";
+      statusEl.textContent = "IT'S A TIE!";
     } else {
       statusEl.textContent = `Player ${gameController.getCurrentTurn()}'s turn`;
-      outcomeEl.textContent = "";
     }
   };
 
